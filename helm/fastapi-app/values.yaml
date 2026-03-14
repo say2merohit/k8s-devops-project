@@ -1,0 +1,85 @@
+# ─────────────────────────────────────────
+# Default values — override with:
+#   helm install myapp ./fastapi-app -f custom-values.yaml
+# ─────────────────────────────────────────
+
+replicaCount: 2
+
+image:
+  repository: YOUR_DOCKERHUB_USERNAME/fastapi-k8s-demo
+  pullPolicy: Always
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - host: fastapi.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: fastapi-tls-secret
+      hosts:
+        - fastapi.local
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+env:
+  APP_ENV: "production"
+  LOG_LEVEL: "info"
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 15
+  readiness:
+    path: /ready
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+monitoring:
+  enabled: true
+  scrape: true
+  port: 8000
+  path: /metrics
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8000"
+  prometheus.io/path: "/metrics"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
