@@ -34,7 +34,7 @@ spec:
 
       containers:
         - name: fastapi-app
-          image: say2merohit/fastapi-k8s-demo:latest   # replaced by CI/CD
+          image: say2rohit/fastapi-k8s-demo:latest   # replaced by CI/CD
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
