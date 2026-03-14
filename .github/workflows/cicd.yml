@@ -5,7 +5,12 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main]
-
+    
+    # ADD THIS BLOCK
+permissions:
+  contents: read
+  security-events: write
+  actions: read
 env:
   DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-k8s-demo
   HELM_CHART: ./helm/fastapi-app
@@ -61,7 +66,7 @@ jobs:
           severity: "CRITICAL,HIGH"
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: "trivy-results.sarif"
